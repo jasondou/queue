@@ -15,25 +15,36 @@ $p = $CFG->dbprefix;
 $old_code = Settings::linkGet('code', '');
 
 if(isset($_POST['join'])){
-
   $username = $_POST["username"];
   $user_location = $_POST["userlocation"];
-  if(strlen($username) == 0 || strlen($user_location) == 0){
-    // NEED to change color here
-    $_SESSION['success'] = 'Please enter your name and location';
-  }else{
-    $PDOX->queryDie("INSERT INTO {$p}queue
-        (link_id, user_id, name, location, waiting_at)
-        VALUES ( :LI, :UI, :NA, :LC, NOW())
-        ON DUPLICATE KEY UPDATE  name = :NA, location = :LC",
-        array(
-          ':LI' => $LINK->id,
-          ':UI' => $USER->id,
-          ':NA' => $username,
-          ':LC' => $user_location
-          ));
 
-      $_SESSION['success'] = 'Waiting :)';
+  $results = $PDOX->allRowsDie("SELECT * FROM {$p}queue
+        WHERE user_id = :ID",
+		array(':ID' => $USER->id
+        )
+	);
+  echo(sizeof($results));
+    // var_dump($rows);
+  if(sizeof($results) > 0){
+    $_SESSION['success'] = 'You are alreadying waiting';
+  }else{
+    if(strlen($username) == 0 || strlen($user_location) == 0){
+      // NEED to change color here
+      $_SESSION['success'] = 'Please enter valid info';
+    }else{
+      $PDOX->queryDie("INSERT INTO {$p}queue
+          (link_id, user_id, name, location, waiting_at)
+          VALUES ( :LI, :UI, :NA, :LC, NOW())
+          ON DUPLICATE KEY UPDATE  name = :NA, location = :LC",
+          array(
+            ':LI' => $LINK->id,
+            ':UI' => $USER->id,
+            ':NA' => $username,
+            ':LC' => $user_location
+            ));
+
+        $_SESSION['success'] = 'Waiting :)';
+    }
   }
     header('Location: '.addSession('index.php') ) ;
 
