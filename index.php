@@ -26,11 +26,11 @@ if(isset($_POST['join'])){
   echo(sizeof($results));
     // var_dump($rows);
   if(sizeof($results) > 0){
-    $_SESSION['success'] = 'You are alreadying waiting';
+    $_SESSION['error'] = 'You are already waiting';
   }else{
     if(strlen($username) == 0 || strlen($user_location) == 0){
       // NEED to change color here
-      $_SESSION['success'] = 'Please enter valid info';
+      $_SESSION['error'] = 'Please enter valid info';
     }else{
       $PDOX->queryDie("INSERT INTO {$p}queue
           (link_id, user_id, name, location, waiting_at)
